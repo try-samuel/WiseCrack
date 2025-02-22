@@ -1,50 +1,98 @@
-# Welcome to your Expo app 👋
+# WiseCrack - Your AI-Powered Mood Booster
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+WiseCrack is a React Native app that helps users navigate their emotions by providing **AI-powered advice** and **mood tracking**. Whenever a user shares a problem, the app offers a **helpful response** followed by a **lighthearted joke** to improve their mood. Additionally, users can **track their moods over time** using Supabase.
 
-## Get started
+---
 
-1. Install dependencies
+## Features
 
-   ```bash
-   npm install
-   ```
+**AI-Powered Solutions** - Get helpful advice tailored to your situation  
+**Mood-Based Jokes** - Lighten the mood with a joke after receiving advice  
+**Mood Tracking** - Save your moods and view past entries  
+**Authentication** - Secure user login with Supabase Auth  
+**Clean UI with Expo Router** - Smooth navigation using file-based routing  
 
-2. Start the app
+---
 
-   ```bash
-    npx expo start
-   ```
+## Tech Stack
 
-In the output, you'll find options to open the app in a
+- **React Native** (with Expo) - Frontend framework  
+- **Supabase** - Backend for authentication & mood tracking  
+- **OpenAI GPT-3.5** (or compatible AI service) - Provides AI-generated advice & jokes  
+- **Expo Router** - Simplified navigation  
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+---
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Installation & Setup
 
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+### 1️⃣ Clone the Repository
+```sh
+git clone https://github.com/your-username/wisecrack.git
+cd wisecrack
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 2️⃣ Install Dependencies
+```sh
+npm install
+```
 
-## Learn more
+### 3️⃣ Set Up Environment Variables
+Create a `.env` file in the root directory and add:
+```sh
+SUPABASE_URL=your-supabase-url
+SUPABASE_ANON_KEY=your-supabase-anon-key
+OPENAI_API_KEY=your-openai-api-key
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+### 4️⃣ Run the App
+```sh
+npx expo start
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+---
 
-## Join the community
+## Usage
 
-Join our community of developers creating universal apps.
+### 🏠 Home Page
+- See your last saved mood  
+- Navigate to **Chat** or **Settings**
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### 💬 Chat Page
+- Enter your **problem or situation**
+- AI provides **helpful advice**
+- AI follows up with a **joke** 😆
+
+### ⚙️ Settings Page
+- **Track Your Mood** by selecting how you feel  
+- Save moods to **Supabase** securely  
+
+---
+
+## Supabase Setup (Mood Tracking)
+
+1️⃣ **Enable Authentication** (Go to Supabase Dashboard → Authentication → Enable Email Auth)  
+2️⃣ **Create `moods` Table** with:
+   - `id` (UUID, primary key)
+   - `mood` (TEXT)
+   - `user_id` (UUID, default: `auth.uid()`)
+   - `created_at` (TIMESTAMP, default: `now()`)  
+3️⃣ **Enable Row-Level Security (RLS)**  
+4️⃣ **Add Policies**:
+   - **SELECT:** `auth.uid() = user_id`
+   - **INSERT:** `auth.uid() = user_id`
+
+---
+
+## Future Enhancements
+
+🚀 Dark Mode Support  
+🚀 AI-Generated Mood Insights  
+🚀 More Personalization (Mood-Based Joke Preferences)  
+
+---
+
+## Contributing
+Feel free to fork the repo and submit pull requests!
+
+📩 **Contact:** your-email@example.com
+
