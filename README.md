@@ -92,7 +92,5 @@ npx expo start
 ---
 
 ## Contributing
-Feel free to fork the repo and submit pull requests!
-
-📩 **Contact:** your-email@example.com
+Feel free to fork the repo and submit pull requests or wispher to me the email on my profile
 
