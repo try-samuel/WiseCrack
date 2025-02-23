@@ -1,10 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  Button,
+} from "react-native";
 import { supabase } from "@/lib/supabase";
+import { useRouter } from "expo-router";
 
 const moods = ["😊", "😐", "😢", "😡", "😴"]; // Example moods
 
 const SettingsScreen = () => {
+  const router = useRouter();
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
 
   useEffect(() => {
@@ -27,6 +36,7 @@ const SettingsScreen = () => {
       .insert([{ mood, user_id: user.id }]);
 
     if (error) console.error("Error saving mood:", error);
+    else setSelectedMood(mood); // Update UI after saving
   };
 
   const fetchLastMood = async () => {
@@ -39,6 +49,12 @@ const SettingsScreen = () => {
     if (!error && data.length > 0) {
       setSelectedMood(data[0].mood);
     }
+  };
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) Alert.alert("Error", error.message);
+    else router.replace("/(auth)"); // Redirect back to login
   };
 
   return (
@@ -55,7 +71,7 @@ const SettingsScreen = () => {
           </TouchableOpacity>
         ))}
       </View>
-
+      <Button title="Logout" onPress={handleLogout} />
       {selectedMood && (
         <Text style={styles.currentMood}>Your last mood: {selectedMood}</Text>
       )}
