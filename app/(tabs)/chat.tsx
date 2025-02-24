@@ -6,12 +6,22 @@ import {
   TouchableOpacity,
   StyleSheet,
   FlatList,
+  Platform,
+  KeyboardAvoidingView,
+  Keyboard,
 } from "react-native";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 const ChatScreen = () => {
   const [inputText, setInputText] = useState("");
   const [messages, setMessages] = useState([
     { id: "1", text: "Hey! What's on your mind today? 😊", sender: "bot" },
+    { id: "2", text: "I'm having trouble with my computer.", sender: "user" },
+    {
+      id: "",
+      text: "I'm sorry to hear that. What seems to be the problem?",
+      sender: "bot",
+    },
   ]);
 
   const sendMessage = () => {
@@ -23,6 +33,7 @@ const ChatScreen = () => {
     };
     setMessages([...messages, newMessage]);
     setInputText(""); // Clear input field
+    Keyboard.dismiss();
 
     // Here we will later add AI response logic
   };
@@ -30,32 +41,59 @@ const ChatScreen = () => {
   return (
     <View style={styles.container}>
       <FlatList
-        data={messages}
+        data={[...messages].reverse()}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View
             style={[
-              styles.messageBubble,
-              item.sender === "user" ? styles.userBubble : styles.botBubble,
+              styles.messageContainer,
+              item.sender === "user" && styles.userMessageContainer,
             ]}
           >
-            <Text style={styles.messageText}>{item.text}</Text>
+            {item.sender === "bot" && (
+              <MaterialCommunityIcons
+                name="robot"
+                size={24}
+                color="#666"
+                style={styles.botIcon}
+              />
+            )}
+            <View
+              style={[
+                styles.messageBubble,
+                item.sender === "user" ? styles.userBubble : styles.botBubble,
+              ]}
+            >
+              <Text
+                style={[
+                  item.sender === "user" ? styles.userText : styles.botText,
+                ]}
+              >
+                {item.text}
+              </Text>
+            </View>
           </View>
         )}
         inverted
       />
-
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Type your problem here..."
-          value={inputText}
-          onChangeText={setInputText}
-        />
-        <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
-          <Text style={styles.sendText}>Send</Text>
-        </TouchableOpacity>
-      </View>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Type your problem here..."
+            placeholderTextColor="#999"
+            value={inputText}
+            onChangeText={setInputText}
+            autoCapitalize="sentences"
+            autoCorrect={true}
+          />
+          <TouchableOpacity onPress={sendMessage}>
+            <MaterialCommunityIcons name="send" size={24} color="#3369FF" />
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
     </View>
   );
 };
@@ -69,45 +107,52 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   messageBubble: {
-    padding: 10,
-    borderRadius: 15,
+    padding: 20,
+    borderRadius: 25,
     marginBottom: 8,
     maxWidth: "80%",
   },
   userBubble: {
     alignSelf: "flex-end",
-    backgroundColor: "#007AFF",
+    backgroundColor: "#3369FF",
+    borderTopRightRadius: 0,
   },
   botBubble: {
     alignSelf: "flex-start",
-    backgroundColor: "#ddd",
+    backgroundColor: "#EEEEEE",
+    borderBottomLeftRadius: 0,
   },
-  messageText: {
-    color: "#fff",
+  userText: {
+    color: "#FFFFFF",
+  },
+  botText: {
+    color: "#000000",
   },
   inputContainer: {
     flexDirection: "row",
-    padding: 10,
     backgroundColor: "#fff",
-    borderTopWidth: 1,
-    borderColor: "#ddd",
+    borderRadius: 30,
+    padding: 15,
+    alignItems: "center",
+    gap: 20,
+    marginTop: 10,
+    marginBottom: 15,
   },
   input: {
     flex: 1,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 10,
+    outline: "none",
     padding: 10,
     marginRight: 10,
   },
-  sendButton: {
-    backgroundColor: "#007AFF",
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 10,
+  botIcon: {
+    marginRight: 8,
   },
-  sendText: {
-    color: "#fff",
-    fontWeight: "bold",
+  messageContainer: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    marginBottom: 8,
+  },
+  userMessageContainer: {
+    justifyContent: "flex-end",
   },
 });

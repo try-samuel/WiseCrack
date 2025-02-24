@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 
 const moods = ["😊", "😐", "😢", "😡", "😴"]; // Example moods
 
@@ -36,7 +37,7 @@ const SettingsScreen = () => {
       .insert([{ mood, user_id: user.id }]);
 
     if (error) console.error("Error saving mood:", error);
-    else setSelectedMood(mood); // Update UI after saving
+    else setSelectedMood(mood);
   };
 
   const fetchLastMood = async () => {
@@ -50,31 +51,54 @@ const SettingsScreen = () => {
       setSelectedMood(data[0].mood);
     }
   };
-
   const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) Alert.alert("Error", error.message);
-    else router.replace("/(auth)"); // Redirect back to login
+    Alert.alert(
+      "Are you sure you want to logout?",
+      "You will need to log in again to access your account.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Logout",
+          onPress: async () => {
+            const { error } = await supabase.auth.signOut();
+            if (error) Alert.alert("Error", error.message);
+            else router.replace("/(auth)");
+          },
+        },
+      ]
+    );
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>How are you feeling today?</Text>
-      <View style={styles.moodContainer}>
-        {moods.map((mood) => (
-          <TouchableOpacity
-            key={mood}
-            onPress={() => saveMood(mood)}
-            style={styles.moodButton}
-          >
-            <Text style={styles.moodText}>{mood}</Text>
-          </TouchableOpacity>
-        ))}
+      <View style={styles.content}>
+        <Text style={styles.heading}>How are you feeling today?</Text>
+        <View style={styles.moodContainer}>
+          {moods.map((mood) => (
+            <TouchableOpacity
+              key={mood}
+              onPress={() => saveMood(mood)}
+              style={styles.moodButton}
+            >
+              <Text style={styles.moodText}>{mood}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        {selectedMood && (
+          <Text style={styles.currentMood}>Your last mood: {selectedMood}</Text>
+        )}
       </View>
-      <Button title="Logout" onPress={handleLogout} />
-      {selectedMood && (
-        <Text style={styles.currentMood}>Your last mood: {selectedMood}</Text>
-      )}
+
+      <View style={styles.footer}>
+        <View style={styles.separator} />
+        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+          <Ionicons name="log-out-outline" size={24} color="white" />
+          <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -84,13 +108,58 @@ export default SettingsScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
     padding: 20,
   },
-  heading: { fontSize: 18, fontWeight: "bold", marginBottom: 20 },
-  moodContainer: { flexDirection: "row", gap: 10 },
-  moodButton: { padding: 10, borderRadius: 10, backgroundColor: "#ddd" },
-  moodText: { fontSize: 24 },
-  currentMood: { marginTop: 20, fontSize: 16 },
+  content: {
+    flex: 1,
+    justifyContent: "flex-end",
+    marginBottom: 20,
+  },
+  heading: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  moodContainer: {
+    flexDirection: "row",
+    gap: 10,
+    justifyContent: "center",
+    marginBottom: 10,
+  },
+  moodButton: {
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: "#ddd",
+  },
+  moodText: {
+    fontSize: 24,
+  },
+  currentMood: {
+    marginTop: 20,
+    fontSize: 16,
+    textAlign: "center",
+  },
+  footer: {
+    width: "100%",
+  },
+  separator: {
+    height: 1,
+    backgroundColor: "#ddd",
+    marginBottom: 20,
+  },
+  logoutButton: {
+    backgroundColor: "#ff4444",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 15,
+    borderRadius: 10,
+    gap: 10,
+  },
+  logoutText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
 });
