@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -11,35 +11,77 @@ import {
   Keyboard,
 } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { useRouter } from "expo-router";
+import { supabase } from "@/lib/supabase";
+import { analyzeSentiment } from "@/lib/analyzeSentiment";
+import { saveMood } from "@/lib/saveMood";
 
 const ChatScreen = () => {
+  const router = useRouter();
   const [inputText, setInputText] = useState("");
   const [messages, setMessages] = useState([
     { id: "1", text: "Hey! What's on your mind today? 😊", sender: "bot" },
-    { id: "2", text: "I'm having trouble with my computer.", sender: "user" },
-    {
-      id: "",
-      text: "I'm sorry to hear that. What seems to be the problem?",
-      sender: "bot",
-    },
   ]);
+  const [showMoodReminder, setShowMoodReminder] = useState(false);
 
-  const sendMessage = () => {
+  useEffect(() => {
+    checkUserMood();
+  }, []);
+
+  const checkUserMood = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from("moods")
+      .select("mood")
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    if (!error && (!data || data.length === 0)) {
+      setShowMoodReminder(true);
+    }
+  };
+
+  const sendMessage = async () => {
     if (inputText.trim() === "") return;
+
     const newMessage = {
       id: Date.now().toString(),
       text: inputText,
       sender: "user",
     };
     setMessages([...messages, newMessage]);
-    setInputText(""); // Clear input field
+    setInputText("");
     Keyboard.dismiss();
 
-    // Here we will later add AI response logic
+    // Analyze sentiment and update mood
+    const detectedMood = await analyzeSentiment(inputText);
+    if (detectedMood) saveMood(detectedMood);
   };
 
   return (
     <View style={styles.container}>
+      {showMoodReminder && (
+        <View style={styles.moodReminder}>
+          <Text style={styles.moodText}>
+            Go to settings to set your current mood
+          </Text>
+          <TouchableOpacity
+            onPress={() => router.push("/(tabs)/settings")}
+            style={styles.moodButton}
+          >
+            <Text style={styles.buttonText}>Go</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setShowMoodReminder(false)}>
+            <MaterialCommunityIcons name="close" size={20} color="black" />
+          </TouchableOpacity>
+        </View>
+      )}
+
       <FlatList
         data={[...messages].reverse()}
         keyExtractor={(item) => item.id}
@@ -76,6 +118,7 @@ const ChatScreen = () => {
         )}
         inverted
       />
+
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
@@ -105,6 +148,31 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f5f5f5",
     padding: 10,
+  },
+  moodReminder: {
+    backgroundColor: "#eed202",
+    padding: 20,
+    borderRadius: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 40,
+    marginBottom: 10,
+  },
+  moodText: {
+    fontSize: 14,
+    color: "#000",
+  },
+  moodButton: {
+    backgroundColor: "#3369FF",
+    paddingVertical: 5,
+    paddingHorizontal: 15,
+    borderRadius: 8,
+    marginLeft: 10,
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "bold",
   },
   messageBubble: {
     padding: 20,

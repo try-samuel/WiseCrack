@@ -1,15 +1,9 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-  Button,
-} from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { saveMood } from "@/lib/saveMood";
 
 const moods = ["😊", "😐", "😢", "😡", "😴"]; // Example moods
 
@@ -19,26 +13,7 @@ const SettingsScreen = () => {
 
   useEffect(() => {
     fetchLastMood();
-  }, []);
-
-  const saveMood = async (mood: string) => {
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      console.error("User not authenticated");
-      return;
-    }
-
-    const { error } = await supabase
-      .from("moods")
-      .insert([{ mood, user_id: user.id }]);
-
-    if (error) console.error("Error saving mood:", error);
-    else setSelectedMood(mood);
-  };
+  }, [selectedMood]);
 
   const fetchLastMood = async () => {
     const { data, error } = await supabase
@@ -87,8 +62,10 @@ const SettingsScreen = () => {
             </TouchableOpacity>
           ))}
         </View>
-        {selectedMood && (
+        {selectedMood ? (
           <Text style={styles.currentMood}>Your last mood: {selectedMood}</Text>
+        ) : (
+          <Text style={styles.currentMood}>You have not set a mood!</Text>
         )}
       </View>
 
