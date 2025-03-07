@@ -1,5 +1,7 @@
 # WiseCrack - Your AI-Powered Mood Booster
 
+Before you go on, this app is really intended to be my first crack at mobile development.
+
 WiseCrack is a React Native app that helps users navigate their emotions by providing **AI-powered advice** and **mood tracking**. Whenever a user shares a problem, the app offers a **helpful response** followed by a **lighthearted joke** to improve their mood. Additionally, users can **track their moods over time** using Supabase.
 
 ---
